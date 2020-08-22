@@ -17,3 +17,34 @@
 -- 收益率表(14个月)： mfd_day_share_interest<br>
 -- 拆借利率（皆为年化利率）： mfd_bank_shibor  
 - 赛题任务：**预测2014年9月每日申购和赎回的总量。**
+
+## 分析过程
+- 导入包
+- 数据导入
+- 数据清洗
+- 对数据进行描述性统计
+
+## 代码学习
+- 时间戳的截取([pandas中的官方说明文档](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.dt.html?highlight=dt#pandas.Series.dt))
+```python3
+import datetime
+import pandas as pd
+# add tiemstamp to dataset
+data_balance['date'] = pd.to_datetime(data_balance['report_date'], format= "%Y%m%d")
+data_balance['day'] = data_balance['date'].dt.day
+data_balance['month'] = data_balance['date'].dt.month
+data_balance['year'] = data_balance['date'].dt.year
+data_balance['week'] = data_balance['date'].dt.week
+data_balance['weekday'] = data_balance['date'].dt.weekday
+```
+
+- groupby分组([groupby详解](https://www.cnblogs.com/Yanjy-OnlyOne/p/11217802.html)、[官方文档](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.groupby.html?highlight=groupby#pandas.DataFrame.groupby))
+```python3
+# total amount
+total_balance = data_balance.groupby(['date'])['total_purchase_amt','total_redeem_amt'].sum()
+total_balance.reset_index(inplace=True)
+```
+```python3
+# 统计大额用户与小额用户的日总交易额的区别
+total_balance_bigNsmall = data_balance.groupby(['date','big_user'], as_index=False)['total_purchase_amt','total_redeem_amt'].sum()
+```
